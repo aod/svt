@@ -2,7 +2,7 @@
 
 A minimal looking customizable  **Sorting Visualizer** for the **Terminal**
 
-![](./svt.gif)
+![](assets/svt.gif)
 
 ## Installation
 
