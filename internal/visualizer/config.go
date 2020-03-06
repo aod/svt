@@ -13,4 +13,5 @@ type Config struct {
 	Algorithm       sorters.Stepped
 	ColumnThiccness int
 	Style           tcell.Style
+	QuitWhenDone    bool
 }

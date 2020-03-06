@@ -107,6 +107,11 @@ mainLoop:
 		}
 	}
 
+	if v.Config.QuitWhenDone {
+		<-time.After(time.Second / 10)
+		return
+	}
+
 	<-v.quit
 }
 
