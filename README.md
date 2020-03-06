@@ -6,7 +6,7 @@ A minimal looking customizable  **Sorting Visualizer** for the **Terminal**
 
 ## Installation
 
-Install it to your $GOPATH/bin using the `go install` command:
+Install it to your `$GOPATH/bin` using the `go install` command:
 
 ```console
 $ go install github.com/aod/svt/cmd/svt
