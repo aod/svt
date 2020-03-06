@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/aod/svt/internal/flags"
-	"github.com/aod/svt/pkg/visualizer"
+	"github.com/aod/svt/internal/visualizer"
 	"github.com/gdamore/tcell"
 )
 
