@@ -28,27 +28,31 @@ func (v *AlgorithmValue) Set(key string) error {
 	return nil
 }
 
-func (v *AlgorithmValue) Usage() string {
-	var algorithms []string
-	for name := range v.Algorithms {
-		algorithms = append(algorithms, "- "+name)
-	}
-	return fmt.Sprintf("Sorting algorithm. Possible values are:\n\t%s\n", strings.Join(algorithms, "\n\t"))
+var algorithms = []string{
+	"bubble",
+	"cocktail",
+	"selection",
 }
 
-var algorithms = map[string]sorters.Stepped{
+func (v *AlgorithmValue) Usage() string {
+	return fmt.Sprintf("Sorting algorithm, choose from:\n%s or %s",
+		strings.Join(algorithms[:len(algorithms)-1], ", "),
+		algorithms[len(algorithms)-1])
+}
+
+var algorithmsTable = map[string]sorters.Stepped{
 	"bubble":    sorters.Bubble,
 	"cocktail":  sorters.Cocktail,
 	"selection": sorters.Selection,
 }
 
 func AlgorithmVar(sorter *sorters.Stepped, name, value string) {
-	*sorter = algorithms[value]
+	*sorter = algorithmsTable[value]
 
 	a := &AlgorithmValue{
 		Value:      value,
 		Algorithm:  sorter,
-		Algorithms: algorithms,
+		Algorithms: algorithmsTable,
 	}
 	flag.Var(a, name, a.Usage())
 }
