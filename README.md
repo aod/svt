@@ -19,6 +19,8 @@ $ svt --help
 Usage of svt:
   -a int
         Array size (default 12)
+  -algorithms
+        Print out all available sorting algorithms
   -d duration
         Delay between sorts (default 16ms)
   -q    Automatically quit after it's done sorting

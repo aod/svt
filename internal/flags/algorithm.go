@@ -28,7 +28,7 @@ func (v *AlgorithmValue) Set(key string) error {
 	return nil
 }
 
-var algorithms = []string{
+var Algorithms = []string{
 	"bubble",
 	"cocktail",
 	"selection",
@@ -36,8 +36,8 @@ var algorithms = []string{
 
 func (v *AlgorithmValue) Usage() string {
 	return fmt.Sprintf("Sorting algorithm, choose from:\n%s or %s",
-		strings.Join(algorithms[:len(algorithms)-1], ", "),
-		algorithms[len(algorithms)-1])
+		strings.Join(Algorithms[:len(Algorithms)-1], ", "),
+		Algorithms[len(Algorithms)-1])
 }
 
 var algorithmsTable = map[string]sorters.Stepped{
