@@ -21,12 +21,10 @@ Usage of svt:
         Array size (default 12)
   -d duration
         Delay between sorts (default 16ms)
+  -q    Automatically quit after it's done sorting
   -s value
-        Sorting algorithm. Possible values are:
-                - bubble
-                - cocktail
-                - selection
-         (default bubble)
+        Sorting algorithm, choose from:
+        bubble, cocktail or selection (default bubble)
   -t int
         Column thiccness (default 4)
 ```
