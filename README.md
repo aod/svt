@@ -25,6 +25,7 @@ Usage of svt:
         Sorting algorithm. Possible values are:
                 - bubble
                 - cocktail
+                - selection
          (default bubble)
   -t int
         Column thiccness (default 4)

@@ -37,8 +37,9 @@ func (v *AlgorithmValue) Usage() string {
 }
 
 var algorithms = map[string]sorters.Stepped{
-	"bubble":   sorters.Bubble,
-	"cocktail": sorters.Cocktail,
+	"bubble":    sorters.Bubble,
+	"cocktail":  sorters.Cocktail,
+	"selection": sorters.Selection,
 }
 
 func AlgorithmVar(sorter *sorters.Stepped, name, value string) {
