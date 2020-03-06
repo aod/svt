@@ -73,25 +73,47 @@ func (v *Visualizer) handleEvents() {
 
 func (v *Visualizer) mainLoop() {
 	v.refreshDimensions()
-	v.draw()
 
+	// Initial draw to screen
+	select {
+	case <-v.quit:
+		return
+	case updateIdx := <-v.update:
+		v.draw(updateIdx)
+	}
+
+	// Main sorting & drawing loop
+mainLoop:
 	for {
 		select {
 		case <-v.quit:
 			return
 		case <-time.After(v.Config.Delay):
-			v.draw()
+			if updateIdx, ok := <-v.update; ok {
+				v.draw(updateIdx)
+			} else {
+				break mainLoop
+			}
 		}
 	}
+
+	// Final visualization. Show sorted array, highlight each element after another
+	for i := 0; i < len(v.Array); i++ {
+		select {
+		case <-v.quit:
+			return
+		case <-time.After(time.Second / 60):
+			v.drawVisualization(i)
+		}
+	}
+
+	<-v.quit
 }
 
-func (v *Visualizer) draw() {
+func (v *Visualizer) draw(updateIdx int) {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
-
-	if updateIdx, ok := <-v.update; ok {
-		v.drawVisualization(updateIdx)
-	}
+	v.drawVisualization(updateIdx)
 }
 
 func (v *Visualizer) drawVisualization(updateIdx int) {
