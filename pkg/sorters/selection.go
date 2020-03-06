@@ -18,5 +18,6 @@ func Selection(arr []int, update chan<- int, mutex *sync.Mutex) {
 		mutex.Lock()
 		arr[minIdx], arr[i] = arr[i], arr[minIdx]
 		mutex.Unlock()
+		update <- i
 	}
 }

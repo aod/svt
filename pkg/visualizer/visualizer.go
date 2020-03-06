@@ -73,7 +73,6 @@ func (v *Visualizer) handleEvents() {
 
 func (v *Visualizer) mainLoop() {
 	v.refreshDimensions()
-
 	v.draw()
 
 	for {
@@ -88,17 +87,19 @@ func (v *Visualizer) mainLoop() {
 
 func (v *Visualizer) draw() {
 	v.mutex.Lock()
+	defer v.mutex.Unlock()
 
-	updateIdx, ok := <-v.update
-	if !ok {
-		v.mutex.Unlock()
-		return
+	if updateIdx, ok := <-v.update; ok {
+		v.drawVisualization(updateIdx)
 	}
+}
+
+func (v *Visualizer) drawVisualization(updateIdx int) {
+	v.Screen.Clear()
 
 	x := v.Width/2 - v.Config.ArraySize*v.Config.ColumnThiccness/2
 	y := v.Height/2 + v.Config.ArraySize/2
 
-	v.Screen.Clear()
 	for idx, value := range v.Array {
 		style := tcell.StyleDefault
 		if updateIdx == idx {
@@ -112,9 +113,8 @@ func (v *Visualizer) draw() {
 		}
 		x += v.Config.ColumnThiccness
 	}
-	v.Screen.Show()
 
-	v.mutex.Unlock()
+	v.Screen.Show()
 }
 
 func (v *Visualizer) refreshDimensions() {
