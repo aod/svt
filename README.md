@@ -2,6 +2,8 @@
 
 A minimal looking customizable  **Sorting Visualizer** for the **Terminal**
 
+![](./svt.gif)
+
 ## Installation
 
 Install it to your $GOPATH/bin using the `go install` command:
