@@ -43,7 +43,7 @@ func (v *AlgorithmValue) Usage() string {
 
 var algorithmsTable = map[string]sorters.Stepped{
 	"bubble":    sorters.Bubble,
-	"bogo":		 sorters.Bogo,
+	"bogo":      sorters.Bogo,
 	"cocktail":  sorters.Cocktail,
 	"selection": sorters.Selection,
 }
