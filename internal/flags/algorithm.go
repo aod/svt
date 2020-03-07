@@ -30,6 +30,7 @@ func (v *AlgorithmValue) Set(key string) error {
 
 var Algorithms = []string{
 	"bubble",
+	"bogo",
 	"cocktail",
 	"selection",
 }
@@ -42,6 +43,7 @@ func (v *AlgorithmValue) Usage() string {
 
 var algorithmsTable = map[string]sorters.Stepped{
 	"bubble":    sorters.Bubble,
+	"bogo":      sorters.Bogo,
 	"cocktail":  sorters.Cocktail,
 	"selection": sorters.Selection,
 }
