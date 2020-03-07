@@ -1,9 +1,12 @@
 package sorters
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
-func Cocktail(arr []int, update chan<- int, mutex *sync.Mutex) {
-	n := len(arr)
+func Cocktail(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
+	n := arr.Len()
 	beginIdx := 0
 	endIdx := n - 1
 
@@ -14,9 +17,9 @@ func Cocktail(arr []int, update chan<- int, mutex *sync.Mutex) {
 		for i := beginIdx; i < endIdx; i++ {
 			update <- i
 
-			if arr[i] > arr[i+1] {
+			if arr.Less(i+1, i) {
 				mutex.Lock()
-				arr[i], arr[i+1] = arr[i+1], arr[i]
+				arr.Swap(i, i+1)
 				mutex.Unlock()
 
 				newEndIdx = i
@@ -28,9 +31,9 @@ func Cocktail(arr []int, update chan<- int, mutex *sync.Mutex) {
 		for i := endIdx - 1; i >= beginIdx; i-- {
 			update <- i + 1
 
-			if arr[i] > arr[i+1] {
+			if arr.Less(i+1, i) {
 				mutex.Lock()
-				arr[i], arr[i+1] = arr[i+1], arr[i]
+				arr.Swap(i, i+1)
 				mutex.Unlock()
 
 				newBeginIdx = i

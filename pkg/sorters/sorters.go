@@ -1,8 +1,11 @@
 // Package sorters implements steppable sorting algorithms functions
 package sorters
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
-// A Stepped function takes an int slice and sorts it whilst updating the
+// A Stepped function takes an sort.Interface and sorts it whilst updating the
 // channel for each comparison and uses the mutex when swapping elements.
-type Stepped func([]int, chan<- int, *sync.Mutex)
+type Stepped func(sort.Interface, chan<- int, *sync.Mutex)

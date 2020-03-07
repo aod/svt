@@ -41,7 +41,7 @@ func (v *Visualizer) Visualize() {
 
 	go func() {
 		defer close(v.update)
-		v.Config.Algorithm(v.Array, v.update, v.mutex)
+		v.Config.Algorithm(v, v.update, v.mutex)
 	}()
 
 	v.mainLoop()
@@ -147,6 +147,10 @@ func (v *Visualizer) drawVisualization(updateIdx int) {
 func (v *Visualizer) refreshDimensions() {
 	v.Width, v.Height = v.Screen.Size()
 }
+
+func (v *Visualizer) Len() int           { return len(v.Array) }
+func (v *Visualizer) Swap(i, j int)      { v.Array[i], v.Array[j] = v.Array[j], v.Array[i] }
+func (v *Visualizer) Less(i, j int) bool { return v.Array[i] < v.Array[j] }
 
 func Make(c Config) *Visualizer {
 	v := &Visualizer{}

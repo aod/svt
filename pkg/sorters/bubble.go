@@ -1,18 +1,21 @@
 package sorters
 
-import "sync"
+import (
+	"sort"
+	"sync"
+)
 
-func Bubble(arr []int, update chan<- int, mutex *sync.Mutex) {
-	n := len(arr)
+func Bubble(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
+	n := arr.Len()
 
 	for n > 1 {
 		newN := 0
 		for i := 1; i <= n-1; i++ {
 			update <- i - 1
 
-			if arr[i-1] > arr[i] {
+			if arr.Less(i, i-1) {
 				mutex.Lock()
-				arr[i-1], arr[i] = arr[i], arr[i-1]
+				arr.Swap(i, i-1)
 				mutex.Unlock()
 
 				newN = i
