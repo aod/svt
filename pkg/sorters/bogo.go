@@ -25,7 +25,7 @@ func Bogo(arr []int, update chan<- int, mutex *sync.Mutex) {
 			}
 		}
 
-		if sorted == true {
+		if sorted {
 			break
 		}
 	}
