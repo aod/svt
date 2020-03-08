@@ -32,6 +32,7 @@ var Algorithms = []string{
 	"bubble",
 	"bogo",
 	"cocktail",
+	"comb",
 	"selection",
 }
 
@@ -45,6 +46,7 @@ var algorithmsTable = map[string]sorters.Stepped{
 	"bubble":    sorters.Bubble,
 	"bogo":      sorters.Bogo,
 	"cocktail":  sorters.Cocktail,
+	"comb":      sorters.Comb,
 	"selection": sorters.Selection,
 }
 

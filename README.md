@@ -26,7 +26,7 @@ Usage of svt:
   -q    Automatically quit after it's done sorting
   -s value
         Sorting algorithm, choose from:
-        bubble, bogo, cocktail or selection (default bubble)
+        bubble, bogo, cocktail, comb or selection (default bubble)
   -t int
         Column thiccness (default 4)
 ```
