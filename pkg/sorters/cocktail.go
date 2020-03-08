@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func Cocktail(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
+func Cocktail(arr sort.Interface, update chan<- Compare, mutex *sync.Mutex) {
 	n := arr.Len()
 	beginIdx := 0
 	endIdx := n - 1
@@ -15,29 +15,41 @@ func Cocktail(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
 		newEndIdx := beginIdx
 
 		for i := beginIdx; i < endIdx; i++ {
-			update <- i
+			c := Compare{
+				Indexes: [2]int{i + 1, i},
+				Swapped: false,
+			}
 
 			if arr.Less(i+1, i) {
 				mutex.Lock()
-				arr.Swap(i, i+1)
+				arr.Swap(i+1, i)
 				mutex.Unlock()
 
+				c.Swapped = true
 				newEndIdx = i
 			}
+
+			update <- c
 		}
 
 		endIdx = newEndIdx
 
 		for i := endIdx - 1; i >= beginIdx; i-- {
-			update <- i + 1
+			c := Compare{
+				Indexes: [2]int{i + 1, i},
+				Swapped: false,
+			}
 
 			if arr.Less(i+1, i) {
 				mutex.Lock()
-				arr.Swap(i, i+1)
+				arr.Swap(i+1, i)
 				mutex.Unlock()
 
+				c.Swapped = true
 				newBeginIdx = i
 			}
+
+			update <- c
 		}
 
 		beginIdx = newBeginIdx

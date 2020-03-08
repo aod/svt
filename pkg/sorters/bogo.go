@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-func Bogo(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
+func Bogo(arr sort.Interface, update chan<- Compare, mutex *sync.Mutex) {
 	n := arr.Len()
 
 	for !sort.IsSorted(arr) {
@@ -14,8 +14,11 @@ func Bogo(arr sort.Interface, update chan<- int, mutex *sync.Mutex) {
 			mutex.Lock()
 			arr.Swap(i, j)
 			mutex.Unlock()
-			update <- i
-			update <- j
+
+			update <- Compare{
+				Indexes: [2]int{i, j},
+				Swapped: true,
+			}
 		})
 	}
 }

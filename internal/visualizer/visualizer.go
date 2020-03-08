@@ -5,6 +5,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/aod/svt/pkg/sorters"
 	"github.com/gdamore/tcell"
 )
 
@@ -15,7 +16,7 @@ type Visualizer struct {
 	Screen        tcell.Screen
 
 	quit   chan struct{}
-	update chan int
+	update chan sorters.Compare
 	mutex  *sync.Mutex
 }
 
@@ -78,8 +79,8 @@ func (v *Visualizer) mainLoop() {
 	select {
 	case <-v.quit:
 		return
-	case updateIdx := <-v.update:
-		v.draw(updateIdx)
+	case comparison := <-v.update:
+		v.draw(comparison)
 	}
 
 	// Main sorting & drawing loop
@@ -89,8 +90,8 @@ mainLoop:
 		case <-v.quit:
 			return
 		case <-time.After(v.Config.Delay):
-			if updateIdx, ok := <-v.update; ok {
-				v.draw(updateIdx)
+			if comparison, ok := <-v.update; ok {
+				v.draw(comparison)
 			} else {
 				break mainLoop
 			}
@@ -103,7 +104,10 @@ mainLoop:
 		case <-v.quit:
 			return
 		case <-time.After(time.Second / 60):
-			v.drawVisualization(i)
+			v.visualize(sorters.Compare{
+				Indexes: [2]int{i, i},
+				Swapped: false,
+			})
 		}
 	}
 
@@ -115,33 +119,91 @@ mainLoop:
 	<-v.quit
 }
 
-func (v *Visualizer) draw(updateIdx int) {
+func (v *Visualizer) draw(c sorters.Compare) {
 	v.mutex.Lock()
 	defer v.mutex.Unlock()
-	v.drawVisualization(updateIdx)
+	v.visualize(c)
 }
 
-func (v *Visualizer) drawVisualization(updateIdx int) {
-	v.Screen.Clear()
+func (v *Visualizer) visualize(c sorters.Compare) {
 
-	x := v.Width/2 - v.Config.ArraySize*v.Config.ColumnThiccness/2
-	y := v.Height/2 + v.Config.ArraySize/2
+	compareColor, swapColor := v.colors()
+	comparedStyle := v.Config.Style.Foreground(compareColor)
+	swappedStyle := v.Config.Style.Foreground(swapColor)
 
-	for idx, value := range v.Array {
-		style := tcell.StyleDefault
-		if updateIdx == idx {
-			style = style.Foreground(tcell.ColorMediumPurple)
+	if !c.Swapped {
+		v.Screen.Clear()
+		defer v.Screen.Show()
+
+		for i := range v.Array {
+			v.drawColumnForIndex(i, v.Config.Style)
 		}
+		v.drawColumnForIndex(c.Indexes[0], comparedStyle)
+		v.drawColumnForIndex(c.Indexes[1], comparedStyle)
+	} else {
+		v.Screen.Clear()
 
-		for i := 0; i <= value; i++ {
-			for j := 0; j < v.Config.ColumnThiccness; j++ {
-				v.Screen.SetContent(x+j, y-i, '█', nil, style)
+		i1 := c.Indexes[0]
+		i2 := c.Indexes[1]
+
+		// Show the array first as if it were not sorted
+		for i := range v.Array {
+			switch {
+			case i == i1:
+				v.drawColumn(i, v.Array[i2], v.Config.Style)
+			case i == i2:
+				v.drawColumn(i, v.Array[i1], v.Config.Style)
+			default:
+				v.drawColumnForIndex(i, v.Config.Style)
 			}
 		}
-		x += v.Config.ColumnThiccness
-	}
+		v.drawColumn(i1, v.Array[i2], comparedStyle)
+		v.drawColumn(i2, v.Array[i1], comparedStyle)
+		v.Screen.Show()
 
-	v.Screen.Show()
+		<-time.After(v.Config.Delay)
+		v.Screen.Clear()
+		defer v.Screen.Show()
+
+		for i := range v.Array {
+			v.drawColumnForIndex(i, v.Config.Style)
+		}
+		v.drawColumnForIndex(i1, swappedStyle)
+		v.drawColumnForIndex(i2, swappedStyle)
+	}
+}
+
+func (v *Visualizer) drawColumnForIndex(idx int, style tcell.Style) {
+	x, y := v.position()
+
+	x += idx * v.Config.ColumnThiccness
+	value := v.Array[idx]
+
+	for i := 0; i <= value; i++ {
+		for j := 0; j < v.Config.ColumnThiccness; j++ {
+			v.Screen.SetContent(x+j, y-i, '█', nil, style)
+		}
+	}
+}
+
+func (v *Visualizer) drawColumn(idx, height int, style tcell.Style) {
+	x, y := v.position()
+
+	x += idx * v.Config.ColumnThiccness
+
+	for i := 0; i <= height; i++ {
+		for j := 0; j < v.Config.ColumnThiccness; j++ {
+			v.Screen.SetContent(x+j, y-i, '█', nil, style)
+		}
+	}
+}
+
+func (v *Visualizer) colors() (compareColor, swapColor tcell.Color) {
+	return tcell.ColorMediumPurple, tcell.ColorLightGreen
+}
+
+func (v *Visualizer) position() (x, y int) {
+	return v.Width/2 - v.Config.ArraySize*v.Config.ColumnThiccness/2, v.Height/2 + v.Config.ArraySize/2
 }
 
 func (v *Visualizer) refreshDimensions() {
@@ -157,7 +219,7 @@ func Make(c Config) *Visualizer {
 	v.Config = c
 
 	v.quit = make(chan struct{})
-	v.update = make(chan int)
+	v.update = make(chan sorters.Compare)
 	v.mutex = &sync.Mutex{}
 
 	random := rand.New(rand.NewSource(time.Now().Unix()))
