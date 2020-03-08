@@ -21,7 +21,7 @@ func init() {
 	flag.IntVar(&config.ColumnThiccness, "t", 4, "Column thiccness")
 	flags.AlgorithmVar(&config.Algorithm, "s", "bubble")
 	flag.BoolVar(&config.QuitWhenDone, "q", false, "Automatically quit after it's done sorting")
-	config.Style = tcell.StyleDefault.Foreground(tcell.ColorGhostWhite)
+	config.Style = tcell.StyleDefault
 
 	flag.BoolVar(&printAlgorithms, "algorithms", false, "Print out all available sorting algorithms")
 
