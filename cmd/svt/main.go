@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
+	"log"
 	"time"
 
 	"github.com/aod/svt/internal/flags"
@@ -11,11 +11,8 @@ import (
 	"github.com/gdamore/tcell"
 )
 
-var config visualizer.Config
-
-var printAlgorithms = false
-
-func init() {
+func main() {
+	config := visualizer.Config{}
 	flag.IntVar(&config.ArraySize, "a", 12, "Array size")
 	flag.DurationVar(&config.Delay, "d", time.Millisecond*16, "Delay between sorts")
 	flag.IntVar(&config.ColumnThiccness, "t", 4, "Column thiccness")
@@ -23,25 +20,20 @@ func init() {
 	flag.BoolVar(&config.QuitWhenDone, "q", false, "Automatically quit after it's done sorting")
 	config.Style = tcell.StyleDefault
 
-	flag.BoolVar(&printAlgorithms, "algorithms", false, "Print out all available sorting algorithms")
+	printAlgorithms := flag.Bool("algorithms", false, "Print out all available sorting algorithms")
 
 	flag.Parse()
-}
 
-func main() {
-	if printAlgorithms {
+	if *printAlgorithms {
 		for _, v := range flags.Algorithms {
-			fmt.Fprintln(os.Stdout, v)
+			fmt.Println(v)
 		}
 		return
 	}
 
 	v := visualizer.Make(config)
-
 	if err := v.Init(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
-
 	v.Visualize()
 }
