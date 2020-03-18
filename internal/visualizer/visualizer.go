@@ -18,6 +18,7 @@ type Visualizer struct {
 	quit   chan struct{}
 	update chan sorters.Compare
 	mutex  *sync.Mutex
+	state  state
 }
 
 func (v *Visualizer) Init() error {
@@ -45,6 +46,7 @@ func (v *Visualizer) Visualize() {
 		v.Config.Algorithm(v, v.update, v.mutex)
 	}()
 
+	v.refreshDimensions()
 	v.mainLoop()
 }
 
@@ -73,50 +75,10 @@ func (v *Visualizer) handleEvents() {
 }
 
 func (v *Visualizer) mainLoop() {
-	v.refreshDimensions()
-
-	// Initial draw to screen
-	select {
-	case <-v.quit:
-		return
-	case comparison := <-v.update:
-		v.draw(comparison)
-	}
-
-	// Main sorting & drawing loop
-mainLoop:
-	for {
-		select {
-		case <-v.quit:
-			return
-		case <-time.After(v.Config.Delay):
-			if comparison, ok := <-v.update; ok {
-				v.draw(comparison)
-			} else {
-				break mainLoop
-			}
-		}
-	}
-
-	// Final visualization. Show sorted array, highlight each element after another
-	for i := 0; i < len(v.Array); i++ {
-		select {
-		case <-v.quit:
-			return
-		case <-time.After(time.Second / 60):
-			v.visualize(sorters.Compare{
-				Indexes: [2]int{i, i},
-				Swapped: false,
-			})
-		}
-	}
-
-	if v.Config.QuitWhenDone {
-		<-time.After(time.Second / 10)
+	if err := v.state.handle(v); err != nil {
 		return
 	}
-
-	<-v.quit
+	v.mainLoop()
 }
 
 func (v *Visualizer) draw(c sorters.Compare) {
@@ -126,7 +88,6 @@ func (v *Visualizer) draw(c sorters.Compare) {
 }
 
 func (v *Visualizer) visualize(c sorters.Compare) {
-
 	compareColor, swapColor := v.colors()
 	comparedStyle := v.Config.Style.Foreground(compareColor)
 	swappedStyle := v.Config.Style.Foreground(swapColor)
@@ -224,6 +185,8 @@ func Make(c Config) *Visualizer {
 
 	random := rand.New(rand.NewSource(time.Now().Unix()))
 	v.Array = random.Perm(v.Config.ArraySize)
+
+	v.state = &initialState{}
 
 	return v
 }
