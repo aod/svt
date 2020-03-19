@@ -3,60 +3,67 @@ package flags
 import (
 	"flag"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/aod/svt/pkg/sorters"
 )
 
-type AlgorithmValue struct {
-	Value      string
-	Algorithm  *sorters.Stepped
-	Algorithms map[string]sorters.Stepped
-}
-
-func (v *AlgorithmValue) String() string {
-	return v.Value
-}
-
-func (v *AlgorithmValue) Set(key string) error {
-	algo, ok := v.Algorithms[key]
-	if !ok {
-		return fmt.Errorf("Algorithm does not exist")
+var (
+	algorithmsTable = map[string]sorters.Stepped{
+		"bubble":    sorters.Bubble,
+		"bogo":      sorters.Bogo,
+		"cocktail":  sorters.Cocktail,
+		"comb":      sorters.Comb,
+		"selection": sorters.Selection,
 	}
-	v.Value = key
-	*v.Algorithm = algo
+	algorithms []string
+)
+
+func init() {
+	for k := range algorithmsTable {
+		algorithms = append(algorithms, k)
+	}
+	sort.Strings(algorithms)
+}
+
+func Algorithms() []string {
+	a := make([]string, len(algorithms))
+	copy(a, algorithms)
+	return a
+}
+
+type algorithmValue struct {
+	value      string
+	algorithm  *sorters.Stepped
+	algorithms map[string]sorters.Stepped
+	usage      string
+}
+
+func (v *algorithmValue) String() string {
+	return v.value
+}
+
+func (v *algorithmValue) Set(key string) error {
+	algo, ok := algorithmsTable[key]
+	if !ok {
+		return fmt.Errorf("algorithm does not exist")
+	}
+	*v.algorithm = algo
 	return nil
 }
 
-var Algorithms = []string{
-	"bubble",
-	"bogo",
-	"cocktail",
-	"comb",
-	"selection",
+func (v *algorithmValue) Usage() string {
+	return fmt.Sprintf("Sorting `algorithm`. Choose from: %s or %s",
+		strings.Join(algorithms[:len(algorithms)-1], ", "),
+		algorithms[len(algorithms)-1])
 }
 
-func (v *AlgorithmValue) Usage() string {
-	return fmt.Sprintf("Sorting algorithm, choose from:\n%s or %s",
-		strings.Join(Algorithms[:len(Algorithms)-1], ", "),
-		Algorithms[len(Algorithms)-1])
-}
-
-var algorithmsTable = map[string]sorters.Stepped{
-	"bubble":    sorters.Bubble,
-	"bogo":      sorters.Bogo,
-	"cocktail":  sorters.Cocktail,
-	"comb":      sorters.Comb,
-	"selection": sorters.Selection,
-}
-
-func AlgorithmVar(sorter *sorters.Stepped, name, value string) {
-	*sorter = algorithmsTable[value]
-
-	a := &AlgorithmValue{
-		Value:      value,
-		Algorithm:  sorter,
-		Algorithms: algorithmsTable,
+func AlgorithmVar(sorter *sorters.Stepped, name string) {
+	*sorter = sorters.Bubble
+	a := &algorithmValue{
+		value:     "bubble",
+		algorithm: sorter,
 	}
 	flag.Var(a, name, a.Usage())
 }

@@ -16,8 +16,9 @@ func main() {
 	flag.IntVar(&config.ArraySize, "a", 12, "Array size")
 	flag.DurationVar(&config.Delay, "d", time.Millisecond*16, "Delay between sorts")
 	flag.IntVar(&config.ColumnThiccness, "t", 4, "Column thiccness")
-	flags.AlgorithmVar(&config.Algorithm, "s", "bubble")
 	flag.BoolVar(&config.QuitWhenDone, "q", false, "Automatically quit after it's done sorting")
+
+	flags.AlgorithmVar(&config.Algorithm, "s")
 	config.Style = tcell.StyleDefault
 
 	printAlgorithms := flag.Bool("algorithms", false, "Print out all available sorting algorithms")
@@ -25,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	if *printAlgorithms {
-		for _, v := range flags.Algorithms {
+		for _, v := range flags.Algorithms() {
 			fmt.Println(v)
 		}
 		return
