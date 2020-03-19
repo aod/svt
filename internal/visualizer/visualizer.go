@@ -75,10 +75,9 @@ func (v *Visualizer) handleEvents() {
 }
 
 func (v *Visualizer) mainLoop() {
-	if err := v.state.handle(v); err != nil {
-		return
+	for v.state != nil {
+		v.state.handle(v)
 	}
-	v.mainLoop()
 }
 
 func (v *Visualizer) draw(c sorters.Compare) {
